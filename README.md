@@ -43,33 +43,19 @@ of the package; this is not to track adoption, but rather for the sake of reprod
 
 ## Installation
 
-`conda` is the preferred way of maintaining software environments, and `poetry` is used to manage Python package dependencies.
+With version 5.0.0, major changes have been introduced in order to make
+the installation functional with the current state of Python build tools.
 
-As of PySpecTools 4.6.1, the installation is intended to be significantly more straightforward
-with PyPI releases; in a given Python environment, just run:
+The provided `conda.yml` should be a one-stop shop install:
 
-`pip install PySpecTools`
+```console
+# recommended to use mamba instead of conda, but both work
+git clone https://github.com/laserkelvin/PySpecTools.git && cd PySpecTools
+mamba env create -n pst -f conda.yml
+```
 
-Alternatively, if you're having issues, we recommend creating a new Python environment
-within `conda`; with Python 3.7+:
-
-1. `conda create -n pst python=3.7`
-2. `conda activate pst`
-3. `pip install poetry`
-4. `poetry install`
-
-Installation on Windows is less straightforward. The following instructions avoid
-issues originating from virtual environments created by poetry and include a workaround
-for a known issue with poetry in Windows.
-
-1. `conda create -n pst python=3.7`
-2. `conda activate pst`
-3. `pip install poetry`
-4. `poetry config virtualenvs.in-project false`
-5. `poetry config virtualenvs.create false`
-6. Navigate to the folder `C:\Users\user\AppData\Local\pypoetry\Cache` and delete all contents of this folder.
-7. Navigate to the folder containing PySpecTools
-8. `poetry install`
+This should install a recent version of Python, and all of the dependencies
+along with PySpecTools itself.
 
 ## PyPickett
 
@@ -112,7 +98,7 @@ Currently, `PySpecTools` is under the MIT license, which allows anyone to freely
 
 If you have features you think would benefit other spectroscopists, you can raise an issue in the repo. Alternatively (and even better) would be to fork the repo, and submit a pull request!
 
-The only comments on coding style are: 
+The only comments on coding style are:
 
 1. Documentation is written in NumPy style
 2. Object-oriented Python
