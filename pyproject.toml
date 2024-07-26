@@ -1,4 +1,8 @@
-[tool.poetry]
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[project]
 name = "pyspectools"
 description = "A set of Python tools/routines for spectroscopy"
 homepage = "https://github.com/laserkelvin/PySpecTools"
@@ -6,44 +10,49 @@ repository = "https://github.com/laserkelvin/PySpecTools"
 documentation = "https://laserkelvin.github.com/PySpecTools"
 readme = "README.md"
 authors = [
-  "Kelvin Lee <kin.long.kelvin.lee@gmail.com>"
+  {"name" = "Kelvin Lee", "email" = "kin.long.kelvin.lee@gmail.com"}
 ]
-version = "4.6.1"
+version = "5.0.0"
 classifiers = [
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+  "numpy>=1.16",
+  "scipy>=1.7.1",
+  "matplotlib>=3.4.3",
+  "astroquery@git+https://github.com/astropy/astroquery",
+  "astropy>=4.3.1",
+  "lmfit>=1.0.2",
+  "PeakUtils>=1.3.2",
+  "scikit-learn>=1.0.0",
+  "colorlover>=0.3.0",
+  "monsterurl>=0.2",
+  "plotly>=3.0.0",
+  "periodictable>=1.6.0",
+  "uncertainties>=3.1.6",
+  "joblib",
+  "ruamel.yaml>=0.17.16",
+  "paramiko>=2.7.2",
+  "Jinja2>=3.0.1",
+  "tqdm",
+  "tinydb>=4.5.2",
+  "networkx>=2.6.3",
+  "numba",
+  "ipython",
+  "ipywidgets",
+  "bokeh"
 ]
 
-[tool.poetry.dependencies]
-python = "^3.7.1, < 3.10.0"
-numpy = ">=1.16"
-pandas = "^1.3.3"
-scipy = "^1.7.1"
-matplotlib = "^3.4.3"
-astroquery = "0.4.3"
-astropy = "4.3.1"
-lmfit = "^1.0.2"
-PeakUtils = ">=1.3.2"
-sklearn = "^0.0"
-colorlover = "^0.3.0"
-monsterurl = "^0.2"
-plotly = ">=3.0.0"
-periodictable = "^1.6.0"
-uncertainties = "^3.1.6"
-joblib = "^1.0.1"
-"ruamel.yaml" = "^0.17.16"
-paramiko = "^2.7.2"
-Jinja2 = "^3.0.1"
-tqdm = "^4.62.3"
-tinydb = "^4.5.2"
-networkx = "^2.6.3"
-torch = "^1.9.1"
-numba = "^0.54.0"
-ipython = "^7.28.0"
-ipywidgets = "^7.6.5"
-bokeh = "^2.4.0"
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pre-commit",
+  "ruff"
+]
 
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-black = "^21.9b0"
+[tool.hatch.metadata]
+allow-direct-references = true
