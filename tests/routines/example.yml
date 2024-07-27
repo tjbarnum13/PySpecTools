@@ -1,0 +1,11 @@
+cyclopenta-2,4-diene-1-carbonitrile:
+  formula: c6h5n
+  filepath: n_lin/1_cyanoCPD.lin
+
+cyclopenta-1,3-diene-1-carbonitrile:
+  formula: c6h5n
+  filepath: n_lin/2_cyanoCPD.lin
+
+2-phenylacetonitrile:
+  formula: c8h7n
+  filepath: n_lin/benzylcyanide.lin
