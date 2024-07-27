@@ -195,7 +195,8 @@ def dump_yaml(yaml_filepath: str, yaml_dict: Dict[Any, Any]):
         Dictionary to be serialized
     """
     with open(yaml_filepath, "w+") as write_file:
-        yaml.dump(yaml_dict, write_file)
+        writer = yaml.YAML(typ="safe")
+        writer.dump(yaml_dict, write_file)
 
 
 def generate_folder():
