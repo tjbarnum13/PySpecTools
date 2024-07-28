@@ -203,7 +203,9 @@ class Transition:
         bool
             True if the two `Transitions` belong to the same carrier.
         """
-        assert type(other) == type(self)
+        assert isinstance(
+            other, type(self)
+        ), "Object for comparison is not the same type."
         return all(
             [
                 self.name == other.name,
@@ -494,7 +496,7 @@ class LineList:
         transition_obj : [type]
             [description]
         """
-        assert type(transition_obj) == Transition
+        assert isinstance(transition_obj, type(self)), "Add pair is not the same type."
         self.transitions.append(Transition)
 
     def __iter__(self):
@@ -689,6 +691,7 @@ class LineList:
             formula=formula,
         )
         linelist_obj = cls(name=name, transitions=list(transitions), source="Catalog")
+        return linelist_obj
 
     @classmethod
     def from_lin(cls, name: str, filepath: str, formula="", **kwargs):
@@ -1100,7 +1103,7 @@ class LineList:
         """
         assign_objs = list()
         for transition in self.transitions:
-            if transition.final == False and len(transition.multiple) != 0:
+            if not transition.final and len(transition.multiple) != 0:
                 assign_objs.append(transition)
         return assign_objs
 
@@ -2260,7 +2263,7 @@ class AssignmentSession:
                             # If there are crazy things in the mix, forget about it
                             self.logger.info("Molecule " + clean_formula + " rejected.")
                             splat_df.drop(index, inplace=True)
-                    except:
+                    except:  # noqa: E722
                         self.logger.warning(
                             "Could not parse molecule " + clean_formula + " rejected."
                         )
@@ -2435,7 +2438,6 @@ class AssignmentSession:
             param_dict = routines.read_yaml(yml_path)
             yml_path = Path(yml_path)
             root = yml_path.parents[0]
-        linelists = list()
         self.logger.info(f"Processing {len(param_dict)} catalog entries in batch mode.")
         for name, subdict in param_dict.items():
             try:
@@ -2506,10 +2508,10 @@ class AssignmentSession:
         """
         # First case is if linelist is provided as a string corresponding to the key in the line_lists attribute
         self.logger.info(f"Processing local catalog for molecule {name}.")
-        if type(linelist) == str:
+        if isinstance(linelist, str):
             linelist = self.line_lists[linelist]
         # In the event that linelist is an actual LineList object
-        elif type(linelist) == LineList:
+        elif isinstance(linelist, LineList):
             if linelist.name not in self.line_lists:
                 self.line_lists[linelist.name] = linelist
         elif filepath:
@@ -2760,10 +2762,10 @@ class AssignmentSession:
         slices = [
             self.table.loc[self.table["source"] == "CDMS/JPL"],
             self.table.loc[
-                (self.table["source"] != "CDMS/JPL") & (self.table["public"] == True)
+                (self.table["source"] != "CDMS/JPL") & (self.table["public"] == True)  # noqa: E712
             ],
             self.table.loc[
-                (self.table["source"] != "CDMS/JPL") & (self.table["public"] == False)
+                (self.table["source"] != "CDMS/JPL") & (self.table["public"] == False)  # noqa: E712
             ],
         ]
         last_source = "Catalog"
@@ -2855,14 +2857,14 @@ class AssignmentSession:
             if transition.intensity >= threshold
         ]
         if atten is not None:
-            assert type(atten) == int
+            assert isinstance(atten, int), "Provided attenuation is not an integer."
             ftb_settings = {"atten": atten}
         else:
             ftb_settings = {"dipole": dipole}
         # Sort the intensities such that the strongest ones are scanned first.
         if sort_int is True:
             transitions = sorted(transitions, key=lambda line: line.intensity)[::-1]
-        for index, uline in enumerate(transitions):
+        for uline in transitions:
             if uline.intensity >= threshold:
                 lines += fa.generate_ftb_line(uline.frequency, shots, **ftb_settings)
         with open(filepath, "w+") as write_file:
@@ -2922,7 +2924,7 @@ class AssignmentSession:
             cavity_freqs = np.asarray(cavity_freqs)
         ftb_settings = {"drpower": -20, "skiptune": False, "dipole": dipole}
         if atten is not None:
-            assert type(atten) == int
+            assert isinstance(atten, int), "Provided attenuation is not an integer."
             del ftb_settings["dipole"]
             ftb_settings["atten"] = int(atten)
         lines = ""
@@ -2984,10 +2986,10 @@ class AssignmentSession:
         lines = ""
         ftb_settings = {"drpower": -20, "skiptune": False, "dipole": dipole}
         if atten is not None:
-            assert type(atten) == int
+            assert isinstance(atten, int), "Provided attenuation is not an integer."
             del ftb_settings["dipole"]
             ftb_settings["atten"] = int(atten)
-        for cindex, cavity in enumerate(cavity_freqs):
+        for _, cavity in enumerate(cavity_freqs):
             for dindex, dr in enumerate(dr_freqs):
                 if dindex == 0:
                     ftb_settings.update(**{"drpower": -20, "skiptune": False})
@@ -3376,8 +3378,8 @@ class AssignmentSession:
             (reduced_table["source"] != "Artifact")
             & (reduced_table["source"] != "CDMS/JPL")
         ]
-        public = local.loc[local["public"] == True]
-        private = local.loc[local["public"] == False]
+        public = local.loc[local["public"] == True]  # noqa: E712
+        private = local.loc[local["public"] == False]  # noqa: E712
         sources = [
             "Artifacts",
             "Splatalogue",
@@ -3606,7 +3608,7 @@ class AssignmentSession:
                 return x
 
         # Replace the source information to designate u-line if it is a u-line
-        table.loc[table["uline"] == True, "source"] = "U"
+        table.loc[table["uline"] == True, "source"] = "U"  # noqa: E712
         if header is None:
             header = [
                 "Frequency",
@@ -3687,8 +3689,8 @@ class AssignmentSession:
             (reduced_table["source"] != "Artifact")
             & (reduced_table["source"] != "CDMS/JPL")
         ]
-        public = local.loc[local["public"] == True]
-        private = local.loc[local["public"] == False]
+        public = local.loc[local["public"] == True]  # noqa: E712
+        private = local.loc[local["public"] == False]  # noqa: E712
         sources = [
             "Artifacts",
             "Splatalogue",
@@ -4019,7 +4021,7 @@ class AssignmentSession:
                 [-8e4, -4e4, -2e4, -1e4, -5e3, -3e3, -1.5e3, -500.0, -100.0]
             )
         # Perform the AP cluster modelling
-        if type(preferences) == list or type(preferences) == np.ndarray:
+        if isinstance(preferences, list) or isinstance(preferences, np.ndarray):
             self.logger.info(f"Evaluating AP over grid values {preferences}.")
             for preference in preferences:
                 try:
@@ -4029,7 +4031,7 @@ class AssignmentSession:
                         fit_df, sil_calc=True, refit=refit, **ap_settings
                     )
                     npoor = (progressions.loc[progressions["Silhouette"] < 0.0].size,)
-                    if type(npoor) == tuple:
+                    if isinstance(npoor, tuple):
                         npoor = npoor[0]
                     nclusters = len(cluster_dict)
                     pref_test_data[preference] = {
@@ -4051,7 +4053,7 @@ class AssignmentSession:
                 fit_df, sil_calc=True, refit=refit, **{"preference": preferences}
             )
             npoor = (progressions.loc[progressions["Silhouette"] < 0.0].size,)
-            if type(npoor) == tuple:
+            if isinstance(npoor, tuple):
                 npoor = npoor[0]
             nclusters = len(cluster_dict)
             pref_test_data[preferences] = {
