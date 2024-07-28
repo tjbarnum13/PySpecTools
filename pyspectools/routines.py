@@ -16,6 +16,9 @@ import numpy as np
 import joblib
 import paramiko
 
+# this object registers objects for (de)serialization
+__yaml_obj__ = yaml.YAML(typ="safe")
+
 
 def run_spcat(filename: str, temperature=None):
     # Run SPCAT
@@ -178,8 +181,7 @@ def read_yaml(yaml_filepath: str) -> Dict[Any, Any]:
         Dictionary based on the YAML contents
     """
     with open(yaml_filepath) as read_file:
-        loader = yaml.YAML(typ="safe")
-        yaml_data = loader.load(read_file)
+        yaml_data = __yaml_obj__.load(read_file)
     return yaml_data
 
 
@@ -195,8 +197,7 @@ def dump_yaml(yaml_filepath: str, yaml_dict: Dict[Any, Any]):
         Dictionary to be serialized
     """
     with open(yaml_filepath, "w+") as write_file:
-        writer = yaml.YAML(typ="safe")
-        writer.dump(yaml_dict, write_file)
+        __yaml_obj__.dump(yaml_dict, write_file)
 
 
 def generate_folder():
