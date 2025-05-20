@@ -1,6 +1,6 @@
-""" Routines to:
-    Parse cat files
-    Run SPFIT and/or SPCAT
+"""Routines to:
+Parse cat files
+Run SPFIT and/or SPCAT
 """
 
 import os
@@ -10,12 +10,14 @@ import json
 import types
 from typing import List, Any, Union, Dict, Tuple
 from glob import glob
-from warnings import warn
 
 import ruamel.yaml as yaml
 import numpy as np
 import joblib
 import paramiko
+
+# this object registers objects for (de)serialization
+__yaml_obj__ = yaml.YAML(typ="safe")
 
 
 def run_spcat(filename: str, temperature=None):
@@ -45,7 +47,7 @@ def run_spcat(filename: str, temperature=None):
 
 
 def run_calbak(filename: str):
-    """ Runs the calbak routine, which generates a .lin file from the .cat """
+    """Runs the calbak routine, which generates a .lin file from the .cat"""
     if os.path.isfile(filename + ".cat") is False:
         raise FileNotFoundError(filename + ".cat is missing; cannot run calbak.")
     process = subprocess.Popen(
@@ -100,20 +102,20 @@ def list_chunks(target: List[Any], n: int):
 
 
 def human2pickett(name: str, reduction="A", linear=True, nuclei=0):
-    """ Function for translating a Hamiltonian parameter to a Pickett
-        identifier.
+    """Function for translating a Hamiltonian parameter to a Pickett
+    identifier.
 
-        An alternative way of doing this is to programmatically
-        generate the Pickett identifiers, and just use format string
-        to output the identifier.
+    An alternative way of doing this is to programmatically
+    generate the Pickett identifiers, and just use format string
+    to output the identifier.
     """
     pickett_parameters = read_yaml(
         os.path.expanduser("~") + "/.pyspectools/pickett_terms.yml"
     )
-    if name is "B" and linear is True:
+    if name == "B" and linear is True:
         # Haven't thought of a clever way of doing this yet...
         identifier = 100
-    elif name is "B" and linear is False:
+    elif name == "B" and linear is False:
         identifier = 20000
     else:
         # Hyperfine terms
@@ -132,12 +134,12 @@ def human2pickett(name: str, reduction="A", linear=True, nuclei=0):
 def read_json(json_filepath: str) -> Dict[Any, Any]:
     """
     Load a JSON file into memory as a Python dictionary.
-    
+
     Parameters
     ----------
     json_filepath : str
         Path to the JSON file
-    
+
     Returns
     -------
     Dict[Any, Any]
@@ -152,7 +154,7 @@ def dump_json(json_filepath: str, json_dict: Dict[Any, Any]):
     """
     Function to serialize a Python dictionary into a JSON file.
     The pretty printing is enabled by default.
-    
+
     Parameters
     ----------
     json_filepath : str
@@ -167,26 +169,26 @@ def dump_json(json_filepath: str, json_dict: Dict[Any, Any]):
 def read_yaml(yaml_filepath: str) -> Dict[Any, Any]:
     """
     Function to load in a YAML file into a Python dictionary.
-    
+
     Parameters
     ----------
     yaml_filepath : str
         Path to the YAML file
-    
+
     Returns
     -------
     Dict[Any, Any]
         Dictionary based on the YAML contents
     """
     with open(yaml_filepath) as read_file:
-        yaml_data = yaml.load(read_file, Loader=yaml.Loader)
+        yaml_data = __yaml_obj__.load(read_file)
     return yaml_data
 
 
 def dump_yaml(yaml_filepath: str, yaml_dict: Dict[Any, Any]):
     """
     Function to serialize a Python dictionary into a YAML file.
-    
+
     Parameters
     ----------
     yaml_filepath : str
@@ -195,7 +197,7 @@ def dump_yaml(yaml_filepath: str, yaml_dict: Dict[Any, Any]):
         Dictionary to be serialized
     """
     with open(yaml_filepath, "w+") as write_file:
-        yaml.dump(yaml_dict, write_file)
+        __yaml_obj__.dump(yaml_dict, write_file)
 
 
 def generate_folder():
@@ -221,8 +223,8 @@ def generate_folder():
 
 
 def format_uncertainty(value: float, uncertainty: float):
-    """ Function to determine the number of decimal places to
-        format the uncertainty. Probably not the most elegant way of doing this.
+    """Function to determine the number of decimal places to
+    format the uncertainty. Probably not the most elegant way of doing this.
     """
     # Convert the value into a string, then determine the length by
     # splitting at the decimal point
@@ -320,15 +322,15 @@ def isnotebook():
 
 def save_obj(obj: Any, filepath: str, **kwargs):
     """
-        Function to serialize an object using dump from joblib.
+    Function to serialize an object using dump from joblib.
 
-        Additional kwargs are passed into the dump, which can
-        be compression parameters, etc.
+    Additional kwargs are passed into the dump, which can
+    be compression parameters, etc.
 
-        parameters:
-        ---------------
-        obj - instance of object to be serialized
-        filepath - filepath to save to
+    parameters:
+    ---------------
+    obj - instance of object to be serialized
+    filepath - filepath to save to
     """
     settings = {"compress": ("gzip", 6), "protocol": 4}
     settings.update(kwargs)
@@ -337,11 +339,11 @@ def save_obj(obj: Any, filepath: str, **kwargs):
 
 def read_obj(filepath: str):
     """
-        Wrapper for joblib.load to load an object from disk
+    Wrapper for joblib.load to load an object from disk
 
-        parameters:
-        ---------------
-        filepath - path to object
+    parameters:
+    ---------------
+    filepath - path to object
     """
     obj = joblib.load(filepath)
     return obj
@@ -349,21 +351,21 @@ def read_obj(filepath: str):
 
 def dump_packages():
     """
-        Function that will return a list of packages that
-        have been loaded and their version numbers.
+    Function that will return a list of packages that
+    have been loaded and their version numbers.
 
-        This function will ignore system packages:
-        sys, __builtins__, types, os
-        
-        as well as modules with no version.
+    This function will ignore system packages:
+    sys, __builtins__, types, os
+
+    as well as modules with no version.
 
 
-        This is not working the way I want it to...
+    This is not working the way I want it to...
 
-        returns:
-        -------------
-        mod_dict - dict with keys corresponding to module name,
-                   and values the version number.
+    returns:
+    -------------
+    mod_dict - dict with keys corresponding to module name,
+               and values the version number.
     """
     mod_dict = dict()
     sys_packages = ["sys", "__builtins__", "types", "os"]
@@ -383,14 +385,14 @@ def find_nearest(array: np.ndarray, value: Union[float, int]) -> Tuple[np.ndarra
     """
     Function that will find the nearest value in a NumPy array to a specified
     value.
-    
+
     Parameters
     ----------
     array : np.ndarray
         NumPy 1D array
     value : float
         Value to search the array for
-    
+
     Returns
     -------
     Tuple[np.ndarray, int]
@@ -485,14 +487,14 @@ def group_consecutives(vals: List[float], step=1):
     Function to group all consecutive values in a list together. The primary purpose of this
     is to split concatenated spectra that are given in a single list of frequencies
     into individual windows.
-    
+
     Parameters
     ----------
     vals : list
         List of floats to be split
     step : int, optional
         [description], by default 1
-    
+
     Returns
     -------
     [type]

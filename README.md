@@ -8,6 +8,8 @@
 
 [![DOI](https://zenodo.org/badge/90773952.svg)](https://zenodo.org/badge/latestdoi/90773952)
 [![Build Status](https://travis-ci.com/laserkelvin/PySpecTools.svg?branch=master)](https://travis-ci.com/laserkelvin/PySpecTools)
+[![PyPI](https://img.shields.io/pypi/v/PySpecTools.svg)](https://pypi.org/project/pyspectools/)
+[![Installation CI](https://github.com/laserkelvin/PySpecTools/actions/workflows/install_test.yml/badge.svg)](https://github.com/laserkelvin/PySpecTools/actions/workflows/install_test.yml)
 
 ![pst-logo](docs/source/_images/pst_logo_landscape.png)
 
@@ -41,27 +43,19 @@ of the package; this is not to track adoption, but rather for the sake of reprod
 
 ## Installation
 
-`conda` is the preferred way of maintaining software environments, and `poetry` is used to manage Python package dependencies.
+With version 5.0.0, major changes have been introduced in order to make
+the installation functional with the current state of Python build tools.
 
-PySpecTools is designed to work with Python 3.7+, and so starting from scratch:
+The provided `conda.yml` should be a one-stop shop install:
 
-1. `conda create -n pst python=3.7`
-2. `conda activate pst`
-3. `pip install poetry`
-4. `poetry install`
+```console
+# recommended to use mamba instead of conda, but both work
+git clone https://github.com/laserkelvin/PySpecTools.git && cd PySpecTools
+mamba env create -n pst -f conda.yml
+```
 
-Installation on Windows is less straightforward. The following instructions avoid
-issues originating from virtual environments created by poetry and include a workaround
-for a known issue with poetry in Windows.
-
-1. `conda create -n pst python=3.7`
-2. `conda activate pst`
-3. `pip install poetry`
-4. `poetry config virtualenvs.in-project false`
-5. `poetry config virtualenvs.create false`
-6. Navigate to the folder `C:\Users\user\AppData\Local\pypoetry\Cache` and delete all contents of this folder.
-7. Navigate to the folder containing PySpecTools
-8. `poetry install`
+This should install a recent version of Python, and all of the dependencies
+along with PySpecTools itself.
 
 ## PyPickett
 
@@ -104,7 +98,7 @@ Currently, `PySpecTools` is under the MIT license, which allows anyone to freely
 
 If you have features you think would benefit other spectroscopists, you can raise an issue in the repo. Alternatively (and even better) would be to fork the repo, and submit a pull request!
 
-The only comments on coding style are: 
+The only comments on coding style are:
 
 1. Documentation is written in NumPy style
 2. Object-oriented Python

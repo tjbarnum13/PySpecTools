@@ -1,29 +1,29 @@
 """
-    `assignment` module
+`assignment` module
 
-    This module contains three main classes for performing analysis of broad-
-    band spectra. The `AssignmentSession` class will be what the user will
-    mainly interact with, which will digest a spectrum, find peaks, make
-    assignments and keep track of them, and generate the reports at the end.
+This module contains three main classes for performing analysis of broad-
+band spectra. The `AssignmentSession` class will be what the user will
+mainly interact with, which will digest a spectrum, find peaks, make
+assignments and keep track of them, and generate the reports at the end.
 
-    To perform the assignments, the user can use the `LineList` class, which
-    does the grunt work of homogenizing the different sources of frequency
-    and molecular information: it is able to take SPCAT and .lin formats, as
-    well as simply a list of frequencies. `LineList` then interacts with the
-    `AssignmentSession` class, which handles the assignments.
+To perform the assignments, the user can use the `LineList` class, which
+does the grunt work of homogenizing the different sources of frequency
+and molecular information: it is able to take SPCAT and .lin formats, as
+well as simply a list of frequencies. `LineList` then interacts with the
+`AssignmentSession` class, which handles the assignments.
 
-    The smallest building block in this procedure is the `Transition` class;
-    every peak, every molecule transition, every artifact is considered as
-    a `Transition` object. The `LineList` contains a list of `Transition`s,
-    and the peaks found by the `AssignmentSession` are also kept as a 
-    `LineList`.
+The smallest building block in this procedure is the `Transition` class;
+every peak, every molecule transition, every artifact is considered as
+a `Transition` object. The `LineList` contains a list of `Transition`s,
+and the peaks found by the `AssignmentSession` are also kept as a
+`LineList`.
 
 """
 
 import os
 from shutil import rmtree
 from dataclasses import dataclass, field
-from typing import List, Dict, Tuple, Union, Type, Any
+from typing import List, Dict, Tuple, Union, Type
 from copy import copy, deepcopy
 from itertools import combinations
 import warnings
@@ -56,64 +56,64 @@ from pyspectools.spectra import analysis
 @dataclass
 class Transition:
     """
-        DataClass for handling assignments.
-        Attributes are assigned in order to be sufficiently informative for a
-        line assignment to be unambiguous and reproduce it later in a form
-        that is both machine and human readable.
+    DataClass for handling assignments.
+    Attributes are assigned in order to be sufficiently informative for a
+    line assignment to be unambiguous and reproduce it later in a form
+    that is both machine and human readable.
 
-        Attributes
-        ----------
-        name : str
-            IUPAC/common name; the former is preferred to be unambiguous
-        formula : str
-            Chemical formula, or usually the stochiometry
-        smiles : str
-            SMILES code that provides a machine and human readable chemical specification
-        frequency : float
-            Observed frequency in MHz
-        intensity : float
-            Observed intensity, in whatever units the experiments are in. Examples are Jy/beam, or micro volts.
-        catalog_frequency : float
-            Catalog frequency in MHz
-        catalog_intensity : float
-            Catalog line intensity, typically in SPCAT units
-        S : float
-            Theoretical line strength; differs from the catalog line strength as it may be used for intrinsic line
-            strength S u^2
-        peak_id : int
-            Peak id from specific experiment
-        uline : bool
-            Flag to indicate whether line is identified or not
-        composition : list of str
-            A list of atomic symbols specifying what the experimental elemental composition is. Influences which
-            molecules are considered possible in the Splatalogue assignment procedure.
-        v_qnos : list of int
-            Quantum numbers for vibrational modes. Index corresponds to mode, and int value to number of quanta.
-            Length should be equal to 3N-6.
-        r_qnos : str
-            Rotational quantum numbers. TODO - better way of managing rotational quantum numbers
-        experiment : int
-            Experiment ID to use as a prefix/suffix for record keeping
-        weighting : float
-            Value for weighting factor used in the automated assignment
-        fit : dict
-            Contains the fitted parameters and model
-        ustate_energy : float
-            Energy of the upper state in Kelvin
-        lstate_energy: float
-            Energy of the lower state in Kelvin
-        intereference : bool
-            Flag to indicate if this assignment is not molecular in nature
-        source : str
-            Indicates what the source used for this assignment is
-        public : bool
-            Flag to indicate if the information for this assignment is public/published
-        velocity : float
-            Velocity of the source used to make the assignment in km/s
-        discharge : bool
-            Whether or not the line is discharge dependent
-        magnet : bool
-            Whether or not the line is magnet dependent (i.e. open shell)
+    Attributes
+    ----------
+    name : str
+        IUPAC/common name; the former is preferred to be unambiguous
+    formula : str
+        Chemical formula, or usually the stochiometry
+    smiles : str
+        SMILES code that provides a machine and human readable chemical specification
+    frequency : float
+        Observed frequency in MHz
+    intensity : float
+        Observed intensity, in whatever units the experiments are in. Examples are Jy/beam, or micro volts.
+    catalog_frequency : float
+        Catalog frequency in MHz
+    catalog_intensity : float
+        Catalog line intensity, typically in SPCAT units
+    S : float
+        Theoretical line strength; differs from the catalog line strength as it may be used for intrinsic line
+        strength S u^2
+    peak_id : int
+        Peak id from specific experiment
+    uline : bool
+        Flag to indicate whether line is identified or not
+    composition : list of str
+        A list of atomic symbols specifying what the experimental elemental composition is. Influences which
+        molecules are considered possible in the Splatalogue assignment procedure.
+    v_qnos : list of int
+        Quantum numbers for vibrational modes. Index corresponds to mode, and int value to number of quanta.
+        Length should be equal to 3N-6.
+    r_qnos : str
+        Rotational quantum numbers. TODO - better way of managing rotational quantum numbers
+    experiment : int
+        Experiment ID to use as a prefix/suffix for record keeping
+    weighting : float
+        Value for weighting factor used in the automated assignment
+    fit : dict
+        Contains the fitted parameters and model
+    ustate_energy : float
+        Energy of the upper state in Kelvin
+    lstate_energy: float
+        Energy of the lower state in Kelvin
+    intereference : bool
+        Flag to indicate if this assignment is not molecular in nature
+    source : str
+        Indicates what the source used for this assignment is
+    public : bool
+        Flag to indicate if the information for this assignment is public/published
+    velocity : float
+        Velocity of the source used to make the assignment in km/s
+    discharge : bool
+        Whether or not the line is discharge dependent
+    magnet : bool
+        Whether or not the line is magnet dependent (i.e. open shell)
     """
 
     name: str = ""
@@ -146,10 +146,10 @@ class Transition:
     final: bool = False
 
     def __eq__(self, other: object) -> bool:
-        """ Dunder method for comparing molecules.
-            This method is simply a shortcut to see if
-            two molecules are the same based on their
-            SMILES code, the chemical name, and frequency.
+        """Dunder method for comparing molecules.
+        This method is simply a shortcut to see if
+        two molecules are the same based on their
+        SMILES code, the chemical name, and frequency.
         """
         if not isinstance(other, Transition):
             return NotImplemented
@@ -193,17 +193,19 @@ class Transition:
 
     def check_molecule(self, other):
         """
-        
+
         Check equivalency based on a common carrier. Compares the
         name, formula, and smiles of this `Transition` object with
         another.
-        
+
         Returns
         -------
         bool
             True if the two `Transitions` belong to the same carrier.
         """
-        assert type(other) == type(self)
+        assert isinstance(
+            other, type(self)
+        ), "Object for comparison is not the same type."
         return all(
             [
                 self.name == other.name,
@@ -230,15 +232,15 @@ class Transition:
         """
         # Take the frequency value to calculate I
         frequency = max([self.frequency, self.catalog_frequency])
-        I = units.S2I(
+        intensity = units.S2I(
             self.intensity,
             Q,
             frequency,
             units.calc_E_lower(frequency, self.ustate_energy),
             T,
         )
-        self.S = I
-        return I
+        self.S = intensity
+        return intensity
 
     def calc_linestrength(self, Q: float, T=300.0):
         """
@@ -311,7 +313,7 @@ class Transition:
 
     @classmethod
     def from_dict(cls, data_dict: Dict):
-        """ 
+        """
         Method for generating an Assignment object
         from a dictionary. All this method does is
         unpack a dictionary into the __init__ method.
@@ -392,7 +394,7 @@ class Transition:
         is copied over, the `final` attribute is set to
         True and will no longer throw a warning duiring
         finalize_assignments.
-        
+
         Parameters
         ----------
         index : int
@@ -417,23 +419,23 @@ class Transition:
 @dataclass
 class LineList:
     """
-        Class for handling and homogenizing all of the possible line lists: from peaks to assignments to catalog files.
+    Class for handling and homogenizing all of the possible line lists: from peaks to assignments to catalog files.
 
-        Attributes
-        ----------
-        name: str, optional
-            Name of the line list. Can be used to identify the molecule, or to simply state the purpose of the list.
-        formula: str, optional
-            Chemical formula for the molecule, if applicable.
-        smi: str, optional
-            SMILES representation of the molecule, if applicable.
-        filecontents: str, optional
-            String representation of the file contents used to make the line list.
-        filepath: str, optional
-            Path to the file used to make the list.
-        transitions: list, optional
-            A designated list for holding Transition objects. This is the bulk of the information for a given
-            line list.
+    Attributes
+    ----------
+    name: str, optional
+        Name of the line list. Can be used to identify the molecule, or to simply state the purpose of the list.
+    formula: str, optional
+        Chemical formula for the molecule, if applicable.
+    smi: str, optional
+        SMILES representation of the molecule, if applicable.
+    filecontents: str, optional
+        String representation of the file contents used to make the line list.
+    filepath: str, optional
+        Path to the file used to make the list.
+    transitions: list, optional
+        A designated list for holding Transition objects. This is the bulk of the information for a given
+        line list.
     """
 
     name: str = ""
@@ -469,12 +471,12 @@ class LineList:
         Dunder method for comparison of LineLists. Since users can accidently
         use different method/formulas yet use the same catalog/lin file to
         create the LineList, we only perform the check on the list of transitions.
-        
+
         Parameters
         ----------
         other : LineList object
             The other LineList to be used for comparison.
-            
+
         Returns
         -------
         bool
@@ -488,13 +490,13 @@ class LineList:
     def __add__(self, transition_obj: Type[Transition]):
         """
         Dunder method to add Transitions to the LineList.
-        
+
         Parameters
         ----------
         transition_obj : [type]
             [description]
         """
-        assert type(transition_obj) == Transition
+        assert isinstance(transition_obj, type(self)), "Add pair is not the same type."
         self.transitions.append(Transition)
 
     def __iter__(self):
@@ -658,10 +660,10 @@ class LineList:
         """
         Method to take the output of a PGopher file and create a LineList
         object. The PGopher output must be in the comma delimited specification.
-        
+
         This is actually the ideal way to generate LineList objects: it fills
         in all of the relevant fields, such as linestrength and state energies.
-        
+
         Parameters
         ----------
         name : str
@@ -670,7 +672,7 @@ class LineList:
             Path to the PGopher CSV output
         formula : str, optional
             Chemical formula of the molecule, defaults to an empty string.
-            
+
         Returns
         -------
         LineList
@@ -689,6 +691,7 @@ class LineList:
             formula=formula,
         )
         linelist_obj = cls(name=name, transitions=list(transitions), source="Catalog")
+        return linelist_obj
 
     @classmethod
     def from_lin(cls, name: str, filepath: str, formula="", **kwargs):
@@ -740,12 +743,12 @@ class LineList:
         of molecules ahead of time, so that the user can have direct control
         over which molecules are specifically targeted without having to
         generate specific catalog files.
-        
+
         Parameters
         ----------
         dataframe : pandas DataFrame
             DataFrame generated by the function `analysis.search_molecule`
-        
+
         Returns
         -------
         LineList
@@ -805,17 +808,17 @@ class LineList:
         """
         Method of generating a LineList object by calculating all possible
         combinations of the
-        
+
         Parameters
         ----------
         max_multi : int, optional
             [description], by default 64
-        
+
         clock : float, optional
             Clock frequency to calculate sub-harmonics of,
             in units of MHz. Defaults to 65,000 MHz, which corresponds
             to the Keysight AWG
-        
+
         Returns
         -------
         LineList object
@@ -1070,12 +1073,12 @@ class LineList:
     def get_frequencies(self, numpy=False):
         """
         Method to extract all the frequencies out of a LineList
-        
+
         Parameters
         ----------
         numpy: bool, optional
             If True, returns a NumPy `ndarray` with the frequencies.
-        
+
         Returns
         -------
         List or np.ndarray
@@ -1088,10 +1091,10 @@ class LineList:
 
     def get_multiple(self):
         """
-        
+
         Convenience function to extract all the transitions within a LineList
         that have multiple possible assignments.
-        
+
         Returns
         -------
         List
@@ -1100,7 +1103,7 @@ class LineList:
         """
         assign_objs = list()
         for transition in self.transitions:
-            if transition.final == False and len(transition.multiple) != 0:
+            if not transition.final and len(transition.multiple) != 0:
                 assign_objs.append(transition)
         return assign_objs
 
@@ -1111,9 +1114,9 @@ class LineList:
         intensity values provided by a user, which is then compared with
         the other transition entries within the LineList. If it doesn't
         already exist, it will then add the new Transition to the LineList.
-        
+
         Kwargs are passed to the creation of the Transition object.
-        
+
         Parameters
         ----------
         frequency, intensity: float
@@ -1130,9 +1133,9 @@ class LineList:
         """
         Function to add multiple pairs of frequency/intensity to the current
         LineList.
-        
+
         Kwargs are passed to the creation of the Transition object.
-        
+
         Parameters
         ----------
         data: iterable of 2-tuple
@@ -1152,7 +1155,7 @@ class LineList:
 
 @dataclass
 class Session:
-    """ 
+    """
     Data class for handling parameters used for an AssignmentSession.
     The user generally shouldn't need to directly interact with this class,
     but can give some level of dynamic control and bookkeeping to how and
@@ -1212,30 +1215,30 @@ class Session:
 
 class AssignmentSession:
     """
-        Main class for bookkeeping and analyzing broadband spectra. This class
-        revolves around operating on a single continuous spectrum, using the
-        class functions to automatically assess the noise statistics, find
-        peaks, and do the bulk of the bookkeeping on what molecules are assigned
-        to what peak.
+    Main class for bookkeeping and analyzing broadband spectra. This class
+    revolves around operating on a single continuous spectrum, using the
+    class functions to automatically assess the noise statistics, find
+    peaks, and do the bulk of the bookkeeping on what molecules are assigned
+    to what peak.
 
     """
 
     @classmethod
     def load_session(cls, filepath: str):
         """
-            Load an AssignmentSession from disk, once it has
-            been saved with the save_session method which creates a pickle
-            file.
+        Load an AssignmentSession from disk, once it has
+        been saved with the save_session method which creates a pickle
+        file.
 
-            Parameters
-            --------------
-            filepath : str
-                path to the AssignmentSession pickle file; typically in the sessions/{experiment_id}.pkl
+        Parameters
+        --------------
+        filepath : str
+            path to the AssignmentSession pickle file; typically in the sessions/{experiment_id}.pkl
 
-            Returns
-            --------------
-            AssignmentSession
-                Instance of the AssignmentSession loaded from disk
+        Returns
+        --------------
+        AssignmentSession
+            Instance of the AssignmentSession loaded from disk
         """
         session = routines.read_obj(filepath)
         # If the pickle file is just read independently, just make all the
@@ -1299,7 +1302,7 @@ class AssignmentSession:
         File formats are not homogenized, and delimiters may change. This exam-
         ple reads in a comma-separated spectrum, with a radial velocity of
         +26.2 km/s.
-        
+
         ```
         session = AssignmentSession.from_ascii(
             filepath="spectrum.mid.dat",
@@ -1395,38 +1398,38 @@ class AssignmentSession:
         verbose=True,
         **kwargs,
     ):
-        """ init method for AssignmentSession.
+        """init method for AssignmentSession.
 
-            Attributes
-            ----------
-            session : `Session` object
-                Class containing parameters for the experiment, including the
-                chemical composition, the noise statistics, radial velocity,
-                etc.
-            data : Pandas DataFrame
-                This pandas dataframe contains the actual x/y data for the
-                spectrum being analyzed.
-            freq_col, int_col : str
-                Names of the frequency and intensity columns that are contained
-                in the `self.data` dataframe
-            t_threshold : float
-                This value is used to cut off upper-states for assignment. This
-                corresponds to three times the user specified temperature for
-                the experiment.
-            umols : list
-                TODO this list should be used to keep track of unidentified
-                molecules during the assignment process. Later on if an the
-                carrier is identified we should be able to update everything
-                consistently.
-            verbose : bool
-                Specifies whether the logging is printed in addition to being
-                dumped to file.
-            line_lists : dict
-                Dictionary containing all of the `LineList` objects being used
-                for assignments. When the `find_peaks` function is run, a
-                `LineList` is generated, holding every peak found as a corres-
-                ponding `Transition`. This `LineList` is then referenced by
-                the "Peaks" key in the line_lists dictionary.
+        Attributes
+        ----------
+        session : `Session` object
+            Class containing parameters for the experiment, including the
+            chemical composition, the noise statistics, radial velocity,
+            etc.
+        data : Pandas DataFrame
+            This pandas dataframe contains the actual x/y data for the
+            spectrum being analyzed.
+        freq_col, int_col : str
+            Names of the frequency and intensity columns that are contained
+            in the `self.data` dataframe
+        t_threshold : float
+            This value is used to cut off upper-states for assignment. This
+            corresponds to three times the user specified temperature for
+            the experiment.
+        umols : list
+            TODO this list should be used to keep track of unidentified
+            molecules during the assignment process. Later on if an the
+            carrier is identified we should be able to update everything
+            consistently.
+        verbose : bool
+            Specifies whether the logging is printed in addition to being
+            dumped to file.
+        line_lists : dict
+            Dictionary containing all of the `LineList` objects being used
+            for assignments. When the `find_peaks` function is run, a
+            `LineList` is generated, holding every peak found as a corres-
+            ponding `Transition`. This `LineList` is then referenced by
+            the "Peaks" key in the line_lists dictionary.
         """
         # Make folders for organizing output
         folders = [
@@ -1553,7 +1556,7 @@ class AssignmentSession:
     def __contains__(self, item: Union["LineList", str]) -> bool:
         """
         Dunder method to check if a molecule is contained within this experiment.
-        
+
         Parameters
         ----------
         item : Union[LineList, str]
@@ -1561,7 +1564,7 @@ class AssignmentSession:
             a `LineList`, check and see if the `LineList` is present in the
             current list. If the item is a `str`, check in the assignment
             table for a name or a formula.
-        
+
         Returns
         -------
         bool
@@ -1577,21 +1580,21 @@ class AssignmentSession:
         """
         Dunder method to look up a frequency contained within the
         experiment peak line list.
-        
+
         Additional kwargs are passed into `LineList.find_candidates`
         function, which allows one to specify tolerances for the
         lookup.
-        
+
         Parameters
         ----------
         frequency : float
             Frequency to search the experiment for in MHz.
-        
+
         Returns
         -------
         pd.DataFrame
             DataFrame of the matched frequencies.
-        
+
         Raises
         -------
         AttributeError
@@ -1704,9 +1707,9 @@ class AssignmentSession:
         """
         Function to manually add multiple pairs of frequency/intensity to the current
         experiment's Peaks list.
-        
+
         Kwargs are passed to the creation of the Transition object.
-        
+
         Parameters
         ----------
         data: iterable of 2-tuple
@@ -1798,7 +1801,7 @@ class AssignmentSession:
         perform an initial peak find using 1% of the maximum intensity as the threshold. The noise region
         will be established based on the largest gap between peaks, i.e. hopefully capturing as little
         features in the statistics as possible.
-        
+
         The alternative method is invoked when the `als` argument is set to True, which will use the
         asymmetric least-squares method to determine the baseline. Afterwards, the baseline is decimated
         by an extremely heavy Gaussian blur, and one ends up with a smoothly varying baseline. In this
@@ -1901,52 +1904,52 @@ class AssignmentSession:
         self, threshold=None, region=None, sigma=6, min_dist=10, als=True, **kwargs
     ):
         """
-            Find peaks in the experiment spectrum, with a specified threshold value or automatic threshold.
-            The method calls the peak_find function from the analysis module, which in itself wraps peakutils.
+        Find peaks in the experiment spectrum, with a specified threshold value or automatic threshold.
+        The method calls the peak_find function from the analysis module, which in itself wraps peakutils.
 
-            The function works by finding regions of the intensity where the first derivative goes to zero
-            and changes sign. This gives peak frequency/intensities from the digitized spectrum, which is
-            then "refined" by interpolating over each peak and fitting a Gaussian to determine the peak.
+        The function works by finding regions of the intensity where the first derivative goes to zero
+        and changes sign. This gives peak frequency/intensities from the digitized spectrum, which is
+        then "refined" by interpolating over each peak and fitting a Gaussian to determine the peak.
 
-            The peaks are then returned as a pandas DataFrame, which can also be accessed in the peaks_df
-            attribute of AssignmentSession.
-            
-            When a value of threshold is not provided, the function will turn to use automated methods for
-            noise detection, either by taking a single value as the baseline (not ALS), or by using the
-            asymmetric least-squares method for fitting the baseline. In both instances, the primary intensity
-            column to be used for analysis will be changed to "SNR", which is the recommended approach.
+        The peaks are then returned as a pandas DataFrame, which can also be accessed in the peaks_df
+        attribute of AssignmentSession.
 
-            To use the ALS algorithm there may be some tweaking involved for the parameters.
-            These are typically found empirically, but for reference here are some "optimal" values
-            that have been tested.
-            
-            For millimeter-wave spectra, larger values of lambda are favored:
-            
-            lambda = 1e5
-            p = 0.1
-            
-            This should get rid of periodic (fringe) baselines, and leave the "real" signal behind.
+        When a value of threshold is not provided, the function will turn to use automated methods for
+        noise detection, either by taking a single value as the baseline (not ALS), or by using the
+        asymmetric least-squares method for fitting the baseline. In both instances, the primary intensity
+        column to be used for analysis will be changed to "SNR", which is the recommended approach.
 
-            Parameters
-            ----------
-            threshold : float or None, optional
-                Peak detection threshold. If None, will take 1.5 times the noise RMS.
-            region : 2-tuple or None, optional
-                If None, use the automatic algorithm. Otherwise, a 2-tuple specifies the region of the spectrum
-                in frequency to use for noise statistics.
-            sigma : float, optional
-                Defines the number of sigma (noise RMS) above the baseline to use as the peak detection threshold.
-            min_dist : int, optional
-                Number of channels between peaks to be detected.
-            als : bool, optional
-                If True, uses ALS fitting to determine a baseline.
-            kwargs
-                Additional keyword arguments are passed to the ALS fitting routine.
+        To use the ALS algorithm there may be some tweaking involved for the parameters.
+        These are typically found empirically, but for reference here are some "optimal" values
+        that have been tested.
 
-            Returns
-            -------
-            peaks_df : dataframe
-                Pandas dataframe with Frequency/Intensity columns, corresponding to peaks
+        For millimeter-wave spectra, larger values of lambda are favored:
+
+        lambda = 1e5
+        p = 0.1
+
+        This should get rid of periodic (fringe) baselines, and leave the "real" signal behind.
+
+        Parameters
+        ----------
+        threshold : float or None, optional
+            Peak detection threshold. If None, will take 1.5 times the noise RMS.
+        region : 2-tuple or None, optional
+            If None, use the automatic algorithm. Otherwise, a 2-tuple specifies the region of the spectrum
+            in frequency to use for noise statistics.
+        sigma : float, optional
+            Defines the number of sigma (noise RMS) above the baseline to use as the peak detection threshold.
+        min_dist : int, optional
+            Number of channels between peaks to be detected.
+        als : bool, optional
+            If True, uses ALS fitting to determine a baseline.
+        kwargs
+            Additional keyword arguments are passed to the ALS fitting routine.
+
+        Returns
+        -------
+        peaks_df : dataframe
+            Pandas dataframe with Frequency/Intensity columns, corresponding to peaks
         """
         if self.int_col == "SNR":
             # if we run peak find again, the int_col is incorrectly
@@ -1955,7 +1958,9 @@ class AssignmentSession:
             columns = self.data.columns.to_list()
             columns = [col for col in columns if col != "SNR"]
             self.int_col = columns[-1]
-            self.logger.info(f"SNR set as int_col and is invalid for peak finding. Using {self.int_col} instead.")
+            self.logger.info(
+                f"SNR set as int_col and is invalid for peak finding. Using {self.int_col} instead."
+            )
         if threshold is None and als is False:
             # Use a quasi-intelligent method of determining the noise floor
             # and ultimately using noise + 1 sigma
@@ -2106,7 +2111,9 @@ class AssignmentSession:
             self.logger.info("Found assignments.")
             return slice_df
 
-    def apply_filter(self, window: Union[str, List[str], np.ndarray], sigma=0.5, int_col=None):
+    def apply_filter(
+        self, window: Union[str, List[str], np.ndarray], sigma=0.5, int_col=None
+    ):
         """
         Applies a filter to the spectral signal. If multiple window functions
         are to be used, a list of windows can be provided, which will then
@@ -2164,24 +2171,24 @@ class AssignmentSession:
         Method that will generate a LineList corresponding to possible
         harmonics, sum, and difference frequencies based on a given clock
         frequency (default: 65,000 MHz).
-        
+
         It is advised to run this function at the end of assignments, owing
         to the sheer number of possible combinations of lines, which may
         interfere with real molecular features.
-        
+
         Parameters
         ----------
         kwargs
             Optional kwargs are passed into the creation of the LineList
             with `LineList.from_clock`.
         """
-        self.logger.info(f"Processing electronics RFI peaks.")
+        self.logger.info("Processing electronics RFI peaks.")
         clock_linelist = LineList.from_clock(**kwargs)
         self.process_linelist(name="Clock", linelist=clock_linelist)
-        self.logger.info(f"Done processing electronic RFI peaks.")
+        self.logger.info("Done processing electronic RFI peaks.")
 
     def process_splatalogue(self, auto=True, progressbar=True):
-        """ Function that will provide an "interface" for interactive
+        """Function that will provide an "interface" for interactive
             line assignment in a notebook environment.
 
             Basic functionality is looping over a series of peaks,
@@ -2256,7 +2263,7 @@ class AssignmentSession:
                             # If there are crazy things in the mix, forget about it
                             self.logger.info("Molecule " + clean_formula + " rejected.")
                             splat_df.drop(index, inplace=True)
-                    except:
+                    except:  # noqa: E722
                         self.logger.warning(
                             "Could not parse molecule " + clean_formula + " rejected."
                         )
@@ -2325,12 +2332,12 @@ class AssignmentSession:
         Function to query splatalogue for a specific molecule. By default, the
         frequency range that will be requested corresponds to the spectral range
         available in the experiment.
-        
+
         Parameters
         ----------
         species : str
             Identifier for a specific molecule, typically name
-        
+
         Returns
         -------
         FigureWidget
@@ -2338,7 +2345,7 @@ class AssignmentSession:
             with the detected peaks, and the molecule spectrum.
         DataFrame
             Pandas DataFrame from the Splatalogue query.
-        
+
         Raises
         ------
         Exception
@@ -2388,7 +2395,7 @@ class AssignmentSession:
         mapping scheme that will associate catalog files with molecule names, formulas, and
         any other `LineList`/`Transition` attributes. This can be in the form of a dictionary
         or a YAML file; one has to be provided.
-        
+
         An example scheme is given here:
         {
             "cyclopentadiene": {
@@ -2399,7 +2406,7 @@ class AssignmentSession:
         The top dictionary has keys corresponding to the name of the molecule,
         and the value as a sub dictionary containing the formula and filepath
         to the catalog file as minimum input.
-        
+
         You can also provide additional details that are `Transition` attributes:
         {
             "benzene": {
@@ -2409,7 +2416,7 @@ class AssignmentSession:
                 "publc": False
             }
         }
-        
+
         Parameters
         ----------
         param_dict : dict or None, optional
@@ -2420,7 +2427,7 @@ class AssignmentSession:
         kwargs
             Additional keyword arguments will be passed into the assignment process,
             which are the args for `process_linelist`.
-            
+
         Raises
         ------
         ValueError : If yml_path and param_dict args are the same value.
@@ -2431,7 +2438,6 @@ class AssignmentSession:
             param_dict = routines.read_yaml(yml_path)
             yml_path = Path(yml_path)
             root = yml_path.parents[0]
-        linelists = list()
         self.logger.info(f"Processing {len(param_dict)} catalog entries in batch mode.")
         for name, subdict in param_dict.items():
             try:
@@ -2502,10 +2508,10 @@ class AssignmentSession:
         """
         # First case is if linelist is provided as a string corresponding to the key in the line_lists attribute
         self.logger.info(f"Processing local catalog for molecule {name}.")
-        if type(linelist) == str:
+        if isinstance(linelist, str):
             linelist = self.line_lists[linelist]
         # In the event that linelist is an actual LineList object
-        elif type(linelist) == LineList:
+        elif isinstance(linelist, LineList):
             if linelist.name not in self.line_lists:
                 self.line_lists[linelist.name] = linelist
         elif filepath:
@@ -2756,10 +2762,10 @@ class AssignmentSession:
         slices = [
             self.table.loc[self.table["source"] == "CDMS/JPL"],
             self.table.loc[
-                (self.table["source"] != "CDMS/JPL") & (self.table["public"] == True)
+                (self.table["source"] != "CDMS/JPL") & (self.table["public"] == True)  # noqa: E712
             ],
             self.table.loc[
-                (self.table["source"] != "CDMS/JPL") & (self.table["public"] == False)
+                (self.table["source"] != "CDMS/JPL") & (self.table["public"] == False)  # noqa: E712
             ],
         ]
         last_source = "Catalog"
@@ -2788,11 +2794,11 @@ class AssignmentSession:
                 )
 
     def _get_assigned_names(self):
-        """ Method for getting all the unique molecules out
-            of the assignments, and tally up the counts.
+        """Method for getting all the unique molecules out
+        of the assignments, and tally up the counts.
 
-            :return identifications: dict containing a tally of molecules
-                                     identified
+        :return identifications: dict containing a tally of molecules
+                                 identified
         """
         names = [ass_obj.name for ass_obj in self.line_lists["Peaks"].get_assignments()]
         # Get unique names
@@ -2815,10 +2821,10 @@ class AssignmentSession:
         """
         Create an FTB file for use in QtFTM based on the remaining ulines. This is used to provide cavity
         frequencies.
-        
+
         If a filepath is not specified, a -uline.ftb file will be created in the
         ftb folder.
-        
+
         The user has the ability to control parameters of the batch by setting
         a global shot count, dipole moment, and minimum intensity value for
         creation.
@@ -2851,14 +2857,14 @@ class AssignmentSession:
             if transition.intensity >= threshold
         ]
         if atten is not None:
-            assert type(atten) == int
+            assert isinstance(atten, int), "Provided attenuation is not an integer."
             ftb_settings = {"atten": atten}
         else:
             ftb_settings = {"dipole": dipole}
         # Sort the intensities such that the strongest ones are scanned first.
         if sort_int is True:
             transitions = sorted(transitions, key=lambda line: line.intensity)[::-1]
-        for index, uline in enumerate(transitions):
+        for uline in transitions:
             if uline.intensity >= threshold:
                 lines += fa.generate_ftb_line(uline.frequency, shots, **ftb_settings)
         with open(filepath, "w+") as write_file:
@@ -2918,7 +2924,7 @@ class AssignmentSession:
             cavity_freqs = np.asarray(cavity_freqs)
         ftb_settings = {"drpower": -20, "skiptune": False, "dipole": dipole}
         if atten is not None:
-            assert type(atten) == int
+            assert isinstance(atten, int), "Provided attenuation is not an integer."
             del ftb_settings["dipole"]
             ftb_settings["atten"] = int(atten)
         lines = ""
@@ -2954,7 +2960,7 @@ class AssignmentSession:
         experiment.
 
         The file is then saved to "ftb/XXX-full-dr.ftb".
-        
+
         The ``atten`` parameter provides a more direct way to control RF power;
         if this value is used, it will overwrite the dipole moment setting.
 
@@ -2980,10 +2986,10 @@ class AssignmentSession:
         lines = ""
         ftb_settings = {"drpower": -20, "skiptune": False, "dipole": dipole}
         if atten is not None:
-            assert type(atten) == int
+            assert isinstance(atten, int), "Provided attenuation is not an integer."
             del ftb_settings["dipole"]
             ftb_settings["atten"] = int(atten)
-        for cindex, cavity in enumerate(cavity_freqs):
+        for _, cavity in enumerate(cavity_freqs):
             for dindex, dr in enumerate(dr_freqs):
                 if dindex == 0:
                     ftb_settings.update(**{"drpower": -20, "skiptune": False})
@@ -3118,11 +3124,11 @@ class AssignmentSession:
 
     def finalize_assignments(self):
         """
-            Function that will complete the assignment process by
-            serializing DataClass objects and formatting a report.
+        Function that will complete the assignment process by
+        serializing DataClass objects and formatting a report.
 
-            Creates summary pandas dataframes as self.table and self.profiles,
-            which correspond to the assignments and fitted line profiles respectively.
+        Creates summary pandas dataframes as self.table and self.profiles,
+        which correspond to the assignments and fitted line profiles respectively.
         """
         assignments = self.line_lists["Peaks"].get_assignments()
         ulines = self.line_lists["Peaks"].get_ulines()
@@ -3177,16 +3183,16 @@ class AssignmentSession:
 
     def clean_folder(self, action=False):
         """
-            Method for cleaning up all of the directories used by this routine.
-            Use with caution!!!
+        Method for cleaning up all of the directories used by this routine.
+        Use with caution!!!
 
-            Requires passing a True statement to actually clean up.
+        Requires passing a True statement to actually clean up.
 
-            Parameters
-            ----------
+        Parameters
+        ----------
 
-            action : bool
-                If True, folders will be deleted. If False (default) nothing is done.
+        action : bool
+            If True, folders will be deleted. If False (default) nothing is done.
         """
         folders = ["assignment_objs", "queries", "sessions", "clean", "reports"]
         if action is True:
@@ -3259,7 +3265,7 @@ class AssignmentSession:
             # Convert Doppler width to frequency widths
             widths = units.dop2freq(doppler, catalog_df["Frequency"].values)
             # Calculate the Gaussian amplitude
-            amplitudes = catalog_df["Flux (Jy)"] / np.sqrt(2.0 * np.pi ** 2.0 * widths)
+            amplitudes = catalog_df["Flux (Jy)"] / np.sqrt(2.0 * np.pi**2.0 * widths)
             sim_y = self.simulate_spectrum(
                 self.data[self.freq_col],
                 catalog_df["Frequency"].values,
@@ -3281,18 +3287,18 @@ class AssignmentSession:
         fake=False,
     ):
         """
-            Generate a synthetic spectrum with Gaussians with the
-            specified parameters, on a given x axis.
+        Generate a synthetic spectrum with Gaussians with the
+        specified parameters, on a given x axis.
 
-            GaussianModel is used here to remain internally consistent
-            with the rest of the code.
+        GaussianModel is used here to remain internally consistent
+        with the rest of the code.
 
-             x: array of x values to evaluate Gaussians on
-             centers: array of Gaussian centers
-             widths: array of Gaussian widths
-             amplitudes: array of Gaussian amplitudes
-             fake: bool indicating whether false intensities are used for the simulation
-            :return y: array of y values
+         x: array of x values to evaluate Gaussians on
+         centers: array of Gaussian centers
+         widths: array of Gaussian widths
+         amplitudes: array of Gaussian amplitudes
+         fake: bool indicating whether false intensities are used for the simulation
+        :return y: array of y values
         """
         y = np.zeros(len(x))
         model = GaussianModel()
@@ -3372,8 +3378,8 @@ class AssignmentSession:
             (reduced_table["source"] != "Artifact")
             & (reduced_table["source"] != "CDMS/JPL")
         ]
-        public = local.loc[local["public"] == True]
-        private = local.loc[local["public"] == False]
+        public = local.loc[local["public"] == True]  # noqa: E712
+        private = local.loc[local["public"] == False]  # noqa: E712
         sources = [
             "Artifacts",
             "Splatalogue",
@@ -3440,8 +3446,8 @@ class AssignmentSession:
 
     def plot_spectrum(self, simulate=False):
         """
-            Generates a Plotly figure of the spectrum. If U-lines are
-            present, it will plot the simulated spectrum also.
+        Generates a Plotly figure of the spectrum. If U-lines are
+        present, it will plot the simulated spectrum also.
         """
         fig = go.FigureWidget()
 
@@ -3497,10 +3503,10 @@ class AssignmentSession:
         The report includes interactive plots showing statistics of the assignments/ulines and
         an overview of the spectrum. At the end of the report is a table of the assignments and
         uline data.
-        
+
         Parameters
         ----------
-        
+
         filepath: str or None, optional
             Path to save the report to. If `None`, defaults to `reports/{id}-summary.html`
         """
@@ -3526,6 +3532,8 @@ class AssignmentSession:
             ]
         ]
         # Render pandas dataframe HTML with bar annotations
+        # TODO if possible, restore precision formatting so we don't
+        # print a zillion digits in the HTML
         reduced_table_html = (
             reduced_table.style.bar(
                 subset=["deviation", "ustate_energy"],
@@ -3533,17 +3541,8 @@ class AssignmentSession:
                 color=["#d65f5f", "#5fba7d"],
             )
             .bar(subset=["intensity"], color="#5fba7d")
-            .format(
-                {
-                    "frequency": "{:.4f}",
-                    "catalog_frequency": "{:.4f}",
-                    "deviation": "{:.3f}",
-                    "ustate_energy": "{:.2f}",
-                    "intensity": "{:.3f}",
-                }
-            )
             .set_table_attributes("""class = "data-table hover compact" """)
-            .render(classes=""" "data-table hover compact" """)
+            .to_html()
         )
         html_dict["assignments_table"] = reduced_table_html
         # The unidentified features table
@@ -3552,11 +3551,12 @@ class AssignmentSession:
             [[uline.frequency, uline.intensity] for uline in ulines],
             columns=["Frequency", "Intensity"],
         )
+        # TODO if possible, restore precision formatting so we don't
+        # print a zillion digits in the HTML
         html_dict["uline_table"] = (
             uline_df.style.bar(subset=["Intensity"], color="#5fba7d")
-            .format({"Frequency": "{:.4f}", "Intensity": "{:.2f}"})
             .set_table_attributes("""class = "data-table hover compact" """)
-            .render(classes=""" "data-table hover compact" """)
+            .to_html()
         )
         # Plotly displays of the spectral feature breakdown and whatnot
         html_dict["plotly_breakdown"] = plot(self.plot_breakdown(), output_type="div")
@@ -3571,16 +3571,16 @@ class AssignmentSession:
     def create_latex_table(self, filepath=None, header=None, cols=None, **kwargs):
         """
         Method to create a LaTeX table summarizing the measurements in this experiment.
-        
+
         Without any additional inputs, the table will be printed into a .tex file
         in the reports folder. The table will be created with the minimum amount
         of information required for a paper, including the frequency and intensity
         information, assignments, and the source of the information.
-        
+
         The user can override the default settings by supplying `header` and `col`
         arguments, and any other kwargs are passed into the `to_latex` pandas
         DataFrame method. The header and col lengths must match.
-        
+
         Parameters
         ----------
         filepath : str, optional
@@ -3608,7 +3608,7 @@ class AssignmentSession:
                 return x
 
         # Replace the source information to designate u-line if it is a u-line
-        table.loc[table["uline"] == True, "source"] = "U"
+        table.loc[table["uline"] == True, "source"] = "U"  # noqa: E712
         if header is None:
             header = [
                 "Frequency",
@@ -3689,8 +3689,8 @@ class AssignmentSession:
             (reduced_table["source"] != "Artifact")
             & (reduced_table["source"] != "CDMS/JPL")
         ]
-        public = local.loc[local["public"] == True]
-        private = local.loc[local["public"] == False]
+        public = local.loc[local["public"] == True]  # noqa: E712
+        private = local.loc[local["public"] == False]  # noqa: E712
         sources = [
             "Artifacts",
             "Splatalogue",
@@ -3768,12 +3768,12 @@ class AssignmentSession:
 
     def plot_assigned(self):
         """
-            Generates a Plotly figure with the assignments overlaid
-            on the experimental spectrum.
+        Generates a Plotly figure with the assignments overlaid
+        on the experimental spectrum.
 
-            Does not require any parameters, but requires that
-            the assignments and peak finding functions have been
-            run previously.
+        Does not require any parameters, but requires that
+        the assignments and peak finding functions have been
+        run previously.
         """
         fig = go.FigureWidget()
         fig.layout["title"] = f"Experiment {self.session.experiment}"
@@ -3937,7 +3937,7 @@ class AssignmentSession:
     def match_artifacts(self, artifact_exp: "AssignmentSession", threshold=0.05):
         """
         TODO: Need to update this method; `process_artifacts` is no longer a method.
-        
+
         Remove artifacts based on another experiment which has the blank
         sample - i.e. only artifacts.
 
@@ -4021,7 +4021,7 @@ class AssignmentSession:
                 [-8e4, -4e4, -2e4, -1e4, -5e3, -3e3, -1.5e3, -500.0, -100.0]
             )
         # Perform the AP cluster modelling
-        if type(preferences) == list or type(preferences) == np.ndarray:
+        if isinstance(preferences, list) or isinstance(preferences, np.ndarray):
             self.logger.info(f"Evaluating AP over grid values {preferences}.")
             for preference in preferences:
                 try:
@@ -4031,7 +4031,7 @@ class AssignmentSession:
                         fit_df, sil_calc=True, refit=refit, **ap_settings
                     )
                     npoor = (progressions.loc[progressions["Silhouette"] < 0.0].size,)
-                    if type(npoor) == tuple:
+                    if isinstance(npoor, tuple):
                         npoor = npoor[0]
                     nclusters = len(cluster_dict)
                     pref_test_data[preference] = {
@@ -4053,7 +4053,7 @@ class AssignmentSession:
                 fit_df, sil_calc=True, refit=refit, **{"preference": preferences}
             )
             npoor = (progressions.loc[progressions["Silhouette"] < 0.0].size,)
-            if type(npoor) == tuple:
+            if isinstance(npoor, tuple):
                 npoor = npoor[0]
             nclusters = len(cluster_dict)
             pref_test_data[preferences] = {
@@ -4103,19 +4103,19 @@ class AssignmentSession:
 
     def search_species(self, formula=None, name=None, smiles=None):
         """
-            Method for finding species in the assigned dataframe,
-            with the intention of showing where the observed frequencies
-            are.
+        Method for finding species in the assigned dataframe,
+        with the intention of showing where the observed frequencies
+        are.
 
-            Parameters
-            --------------
-            formula - str for chemical formula lookup
-            name - str for common name
-            smiles - str for unique SMILES string
+        Parameters
+        --------------
+        formula - str for chemical formula lookup
+        name - str for common name
+        smiles - str for unique SMILES string
 
-            Returns
-            --------------
-            pandas dataframe slice with corresponding lookup
+        Returns
+        --------------
+        pandas dataframe slice with corresponding lookup
         """
         if hasattr(self, "table") is False:
             raise Exception("No assignment table created yet. Finalize assignments.")
@@ -4132,16 +4132,16 @@ class AssignmentSession:
 
     def save_session(self, filepath=None):
         """
-            Method to save an AssignmentSession to disk.
-            
-            The underlying mechanics are based on the joblib library,
-            and so there can be cross-compatibility issues particularly
-            when loading from different versions of Python.
+        Method to save an AssignmentSession to disk.
 
-            Parameters
-            ---------------
-             filepath - str
-                Path to save the file to. By default it will go into the sessions folder.
+        The underlying mechanics are based on the joblib library,
+        and so there can be cross-compatibility issues particularly
+        when loading from different versions of Python.
+
+        Parameters
+        ---------------
+         filepath - str
+            Path to save the file to. By default it will go into the sessions folder.
         """
         if filepath is None:
             filepath = f"./sessions/{self.session.experiment}.pkl"
@@ -4158,7 +4158,7 @@ class Molecule(LineList):
     Special instance of the LineList class. The idea is to eventually
     use the high speed fitting/cataloguing routines by Brandon to provide
     quick simulations overlaid on chirp spectra.
-    
+
     Attributes
     """
 
@@ -4169,3 +4169,8 @@ class Molecule(LineList):
 
     def __post_init__(self, **kwargs):
         super().__init__(**kwargs)
+
+
+# register classes for save (de)serialization
+for _class in [Transition, LineList, Molecule]:
+    routines.__yaml_obj__.register_class(_class)
